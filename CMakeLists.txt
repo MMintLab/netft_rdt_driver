@@ -14,9 +14,12 @@ add_service_files(DIRECTORY srv FILES
   Zero.srv
 )
 
+catkin_python_setup()
+
 generate_messages()
 
 catkin_package()
+
 
 message("Boost_LIBRARIES " ${Boost_LIBRARIES})
 message("Boost_INCLUDE_DIRS " ${Boost_INCLUDE_DIRS})

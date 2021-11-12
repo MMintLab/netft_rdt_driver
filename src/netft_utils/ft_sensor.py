@@ -28,6 +28,7 @@ class FTSensor(object):
 
     def _ft_data_callback(self, msg):
         with self.lock:
+            msg.header.frame_id = '{}_sensor'.format(self.ns)
             self._data.append(msg)
 
     def zero(self):
@@ -54,13 +55,11 @@ class FTSensor(object):
 
         """
         if average:
-            wait_for(lambda: not( block_until_data and None in self.data), 10, f"FTSensor({self.ns})")
-            with self.lock:
-                return average_wrench_stamped(self.data)
+            wait_for(lambda: not(block_until_data and None in self.data), 10, f"FTSensor({self.ns})")
+            return average_wrench_stamped(self.data)
         else:
-            wait_for(lambda: not (block_until_data and self.data[-1] is None), 10, f"FTSensor({self.ns})")
-            with self.lock:
-                return self.data[-1] # get the most recent wrench stamped
+            wait_for(lambda: not(block_until_data and self.data[-1] is None), 10, f"FTSensor({self.ns})")
+            return self.data[-1] # get the most recent wrench stamped
 
 
 # USEFUL FUNCTIONS:
@@ -106,5 +105,5 @@ def wait_for(func, warn_after: Optional[int] = 10, name: Optional[str] = ""):
 # DEBUG:
 if __name__ == '__main__':
     rospy.init_node('ft_sensor')
-    ftsensor = FTSensor()
+    ftsensor = FTSensor(ns='netft')
     avg_wrench_stamped = ftsensor.get_wrench(average=True)
