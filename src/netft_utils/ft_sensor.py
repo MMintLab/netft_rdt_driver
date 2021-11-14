@@ -26,6 +26,10 @@ class FTSensor(object):
         with self.lock:
             return copy.deepcopy(self._data)
 
+    def clean_buffer(self):
+        with self.lock:
+            self._data = deque([None] * self.buffer_size, self.buffer_size)  # clean buffer
+
     def _ft_data_callback(self, msg):
         with self.lock:
             msg.header.frame_id = '{}_sensor'.format(self.ns)
@@ -41,6 +45,7 @@ class FTSensor(object):
         try:
             zero_proxy = rospy.ServiceProxy(service_name, Zero)
             zero_proxy()
+            self.clean_buffer()
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
 
