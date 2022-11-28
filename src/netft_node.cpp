@@ -53,7 +53,7 @@ namespace po = boost::program_options;
 using namespace std;
 
 geometry_msgs::Wrench offsets;
-bool setzero = false;
+std::atomic<bool> setzero(false);
 const int total_setzero_cnt = 100;
 int setzero_cnt = 0;
 
@@ -61,14 +61,13 @@ bool zero(netft_rdt_driver::Zero::Request  &req,
           netft_rdt_driver::Zero::Response &res){
   setzero = true;
   
-  // ros::Rate wait_rate(1);
-  // while (ros::ok())
-  // {
-    // if(!setzero)
-      // break;
-    // //printf("setzero %d\n", setzero);
-    // wait_rate.sleep();
-  // }
+   ros::Rate wait_rate(10);
+   while (ros::ok())
+   {
+     if(!setzero)
+       break;
+     wait_rate.sleep();
+   }
   return true;
 }
 
@@ -77,7 +76,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "netft_node");
   ros::NodeHandle nh;
   ros::ServiceServer service = nh.advertiseService("zero", zero);
-
+  ros::AsyncSpinner spinner(1);
 
   float pub_rate_hz;
   string address;
@@ -139,6 +138,8 @@ int main(int argc, char **argv)
   diag_array.status.reserve(1);
   diagnostic_updater::DiagnosticStatusWrapper diag_status;
   ros::Time last_diag_pub_time(ros::Time::now());
+
+  spinner.start();
 
   while (ros::ok())
   {
@@ -202,9 +203,10 @@ int main(int argc, char **argv)
       last_diag_pub_time = current_time;
     }
     
-    ros::spinOnce();
+    // ros::spinOnce();
     pub_rate.sleep();
   }
-  
+
+  spinner.stop();
   return 0;
 }
