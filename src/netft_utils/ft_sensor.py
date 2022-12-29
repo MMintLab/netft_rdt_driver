@@ -16,9 +16,10 @@ class FTSensor(object):
         self.ns = ns
         self.topic_name = '/{}/netft_data'.format(self.ns)
         self.buffer_size = buffer_size
-        self._data = deque([None]*self.buffer_size, self.buffer_size)
+        self._data = None
         self.lock = Lock()
-        self.ft_data_subscriber = rospy.Subscriber(self.topic_name, WrenchStamped, self._ft_data_callback)
+        self.clean_buffer() # reset buffer
+        self.ft_data_subscriber = self._get_ft_data_subscriber()
         self.get_wrench(block_until_data=wait_for_data)
 
     @property
@@ -29,6 +30,10 @@ class FTSensor(object):
     def clean_buffer(self):
         with self.lock:
             self._data = deque([None] * self.buffer_size, self.buffer_size)  # clean buffer
+
+    def _get_ft_data_subscriber(self):
+        ft_data_subscriber = rospy.Subscriber(self.topic_name, WrenchStamped, self._ft_data_callback)
+        return ft_data_subscriber
 
     def _ft_data_callback(self, msg):
         with self.lock:
