@@ -4,7 +4,7 @@
     <arg name="ip" default="192.168.1.31"/>
     <arg name="rate" default="100"/>
     <arg name="frame_id" default = "link_ft"/>
-
-    <node pkg="netft_rdt_driver" type="netft_node" name="netft" output="screen" args="--address $(arg ip) --rate $(arg rate) --frame_id $(arg frame_id)" ns="netft"/>
+    <arg name="sensor_name" default="netft"/>
+    <node pkg="netft_rdt_driver" type="netft_node" name="$(arg sensor_name)" output="screen" args="--address $(arg ip) --rate $(arg rate) --frame_id $(arg frame_id)" ns="$(arg sensor_name)"/>
 
 </launch>
