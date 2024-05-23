@@ -12,9 +12,9 @@ from geometry_msgs.msg import WrenchStamped
 
 
 class FTSensor(object):
-    def __init__(self, ns='netft', wait_for_data=False, buffer_size=50):
+    def __init__(self, ns='netft', wait_for_data=False, topic_data_name='netft_data', buffer_size=50):
         self.ns = ns
-        self.topic_name = '/{}/netft_data'.format(self.ns)
+        self.topic_name = '/{}/{}'.format(self.ns, topic_data_name)
         self.buffer_size = buffer_size
         self._data = None
         self.lock = Lock()
